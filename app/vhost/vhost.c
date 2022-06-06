@@ -87,6 +87,7 @@ main(int argc, char *argv[])
 {
 	struct spdk_app_opts opts = {};
 	int rc;
+    int start;
 
 	spdk_app_opts_init(&opts, sizeof(opts));
 	opts.name = "vhost";
@@ -101,10 +102,15 @@ main(int argc, char *argv[])
 		save_pid(g_pid_path);
 	}
 
-	/* Blocks until the application is exiting */
-	rc = spdk_app_start(&opts, vhost_started, NULL);
-
-	spdk_app_fini();
+    for (start=0; start < 3; start++) {
+        /* Blocks until the application is exiting */
+        rc = spdk_app_start(&opts, vhost_started, NULL);
+        if (rc) {
+            printf("rc %d:  test run vhost in loop", rc);
+        }
+        spdk_app_fini();
+        printf("rc: %d , loop: %d \n", rc, start);
+    }
 
 	return rc;
 }
